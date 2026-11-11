@@ -2,6 +2,8 @@
 
 把 [Breeze-TTS-2.cpp](https://github.com/HoppouAI/Breeze-TTS-2.cpp) 接进 DeepSeek Harness：**让 agent 真的开口说话**。
 
+> 仓库：<https://github.com/coderstack-ai/dsh-breeze> · 许可 MIT · 后端是可选的 Breeze-TTS-2.cpp（权重非商业）
+
 装上之后，agent 有 7 个工具：把文字变成音频文件、列出/保存/删除音色、声音转换、报告服务状态、读写自己的配置。所有设置落在一个 JSON 文件里，**agent 自己就能配完，不用重启、不用点界面**。
 
 ```
@@ -45,11 +47,21 @@ curl http://127.0.0.1:8080/health
 
 ## 二、装插件
 
+仓库：<https://github.com/coderstack-ai/dsh-breeze>
+
+**从 GitHub 装**（推荐，装完即可用）：
+
 ```bash
-plugin_manager install_bundle  target = link:D:/Projects/dsh-breeze
+plugin_manager install_bundle  target = https://github.com/coderstack-ai/dsh-breeze.git
 ```
 
-装的是 `link:` 本地目录，改了源码后重新启用一次插件行即可生效（HMR 在时不用重启 DSH）：
+**从本地 checkout 装**（改代码时用；`link:` 装的是目录本身，改完不用重新安装）：
+
+```bash
+plugin_manager install_bundle  target = link:<这个仓库在你机器上的绝对路径>
+```
+
+改了源码要让它生效，重新启用一次插件行即可（HMR 在时不用重启 DSH）：
 
 ```
 plugin_manager set_plugin target=include:breeze enabled=false
@@ -59,6 +71,7 @@ plugin_manager set_plugin target=include:breeze enabled=true
 装完 DSH 里就有 `breeze_*` 工具了。
 
 ---
+
 
 ## 三、配一次
 
@@ -119,8 +132,8 @@ agent 会调 `breeze_config` 写入，然后 `breeze_status` 验证，把结果�
 **Docker / 服务以 SYSTEM 账户跑时**：`os.homedir()` 指向 `C:\Windows\System32\config\systemprofile`，和你看的不是同一个 home。这时用环境变量指死：
 
 ```
-DSH_BREEZE_HOME=D:\path\to\state        # 目录
-DSH_BREEZE_CFG=D:\path\to\config.json   # 或直接指定文件
+DSH_BREEZE_HOME=<状态目录>            # 目录
+DSH_BREEZE_CFG=<配置文件的完整路径>   # 或直接指定文件
 ```
 
 ---
@@ -337,7 +350,7 @@ agent 调 `breeze_speak`，拿到路径后再用 `present` 给你。
 1. 准备一段参考音频（24 kHz 单声道 WAV 编码效果最好）+ **逐字准确的转写文本**。
 2. 保存：
 
-> 把 `D:\voices\me.wav` 存成音色 `myself`，内容是「今天天气不错，我们出去走走吧」。
+> 把 `voices/me.wav` 存成音色 `myself`，内容是「今天天气不错，我们出去走走吧」。
 
 3. 之后只要 `voice: "myself"`，不用再传参考音频 —— 省掉每次约 550 ms 的编码。
 
@@ -360,7 +373,7 @@ agent 调 `breeze_speak`，拿到路径后再用 `present` 给你。
 
 ### 换声（experimental）
 
-> 把 `D:\recordings\take.wav` 换成 `female_001` 的声音，原文是「……」
+> 把 `recordings/take.wav` 换成 `female_001` 的声音，原文是「……」
 
 保表演、换音色；音高会按目标声音的声区重生成，所以唱的可能跑调半个八度。**给 `text` 上传源文本很重要**，官方实测：同一段清唱，不给文本听成「Does it pinch I?」，给了才听成原词。
 
