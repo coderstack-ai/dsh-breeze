@@ -1,0 +1,8 @@
+# dsh-breeze bundle: registers the host plugin row.
+#
+# The plugin reads its settings from <home>/.dsh/dsh-breeze/config.json
+# (override with DSH_BREEZE_CFG), so the agent can configure it end to end
+# without anyone touching this file.
+- insert:
+    - id: breeze
+      name: 'dsh-breeze'

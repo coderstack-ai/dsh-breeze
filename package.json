@@ -1,0 +1,62 @@
+{
+  "name": "dsh-breeze",
+  "version": "0.1.0",
+  "description": "Breeze TTS 2 for DeepSeek Harness — let the agent actually speak: voice design, cloning, voice library and streaming speech, backed by a Breeze-TTS-2.cpp server. / 让 DSH 的 agent 真的开口说话：语音设计、克隆、音色库，后端是 Breeze-TTS-2.cpp 服务端。",
+  "type": "module",
+  "main": "lib/index.mjs",
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "lib/",
+    "README.md",
+    "README-AI.md",
+    "NOTICE.md",
+    "LICENSE",
+    "cordis.patch.yml"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "dsh",
+    "tts",
+    "breeze",
+    "breeze-tts",
+    "voice",
+    "speech",
+    "text-to-speech",
+    "voice-clone"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderstack-ai/dsh-breeze.git"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings-plugins"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@electron/asar": "^3.2.10"
+  }
+}

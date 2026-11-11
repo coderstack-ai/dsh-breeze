@@ -1,0 +1,8 @@
+node_modules/
+.tools/
+.ref/
+.asar-list.txt
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
