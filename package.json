@@ -1,7 +1,7 @@
 {
   "name": "dsh-breeze",
   "version": "0.1.0",
-  "description": "Breeze TTS 2 for DeepSeek Harness — let the agent actually speak: voice design, cloning, voice library and streaming speech, backed by a Breeze-TTS-2.cpp server. / 让 DSH 的 agent 真的开口说话：语音设计、克隆、音色库，后端是 Breeze-TTS-2.cpp 服务端。",
+  "description": "Breeze TTS 2 for DeepSeek Harness — model-facing tools plus one settings section: synthesis, voice design/cloning, voice library. / 给 DSH 的 Breeze TTS 2：模型可调用的工具 + 一个独立设置分区（合成、语音设计/克隆、音色库）。",
   "type": "module",
   "main": "lib/index.mjs",
   "exports": {
@@ -26,11 +26,11 @@
     "dsh",
     "tts",
     "breeze",
-    "breeze-tts",
     "voice",
     "speech",
     "text-to-speech",
-    "voice-clone"
+    "voice-clone",
+    "tool"
   ],
   "repository": {
     "type": "git",
@@ -43,7 +43,7 @@
     "client": {
       "platform": "web",
       "inject": [
-        "@deepseek-ai/dsh-client-ui-settings-plugins"
+        "@deepseek-ai/dsh-client-ui-settings"
       ]
     }
   },

@@ -48,7 +48,7 @@ function expect(condition, label, detail = '') {
 
 console.log('\n[1/3] static');
 
-const modules = ['index.mjs', 'tools.mjs', 'routes.mjs', 'config.mjs', 'breeze-client.mjs', 'wav.mjs', 'output.mjs', 'server-manager.mjs', 'ws.mjs', 'ws-probe.mjs', 'speech-ws.mjs'];
+const modules = ['index.mjs', 'tools.mjs', 'config.mjs', 'breeze-client.mjs', 'wav.mjs', 'output.mjs', 'server-manager.mjs'];
 for (const file of modules) {
   const full = path.join(ROOT, 'lib', file);
   try {
@@ -138,12 +138,11 @@ expect(plugin.name === 'dsh-breeze', 'entry exports name', plugin.name);
 expect(Array.isArray(plugin.inject) && plugin.inject.includes('tools'), 'entry injects tools', JSON.stringify(plugin.inject));
 
 const registered = [];
-const routes = [];
+// Tools only: the plugin must not depend on webServer, a route table, or a client
+// half. A stub that offers nothing but `tools` proves that.
 const stubCtx = {
   tools: { register: (definition) => { registered.push(definition); return () => {}; } },
-  get: (service) => (service === 'webServer'
-    ? { register: (route) => { routes.push(route); return () => {}; } }
-    : undefined),
+  get: () => undefined,
   effect: (fn) => { fn(); },
   logger: { info: () => {}, warn: (m) => console.log(`  warn  ${m}`) },
 };
@@ -156,11 +155,27 @@ try {
 }
 expect(!applyThrew, 'apply() completes against a stub ctx', applyThrew ? String(applyThrew.message) : '');
 expect(registered.length === TOOLS.length, 'every tool reaches the registry', `${registered.length}/${TOOLS.length}`);
-expect(routes.length === 1, 'exactly one route registered', `${routes.length}`);
-if (routes[0]) {
-  expect(routes[0].kind === 'prefix', 'route kind is prefix', routes[0].kind);
-  expect(routes[0].path === '/dsh-breeze-api', 'route path', routes[0].path);
-  expect(typeof routes[0].handler === 'function', 'route has a handler');
+expect(TOOLS.every((tool) => !/ws|transport|autoRead/i.test(tool.name)), 'no tool exposes websocket or auto-read switches');
+expect(Array.isArray(plugin.inject) && plugin.inject.length === 2 && plugin.inject.includes('tools') && plugin.inject.includes('webServer'),
+  'injects exactly tools and webServer', JSON.stringify(plugin.inject));
+
+// With a web server present it must register exactly one prefix route, and that
+// route must survive a request for an unknown path.
+{
+  const routes = [];
+  const withServer = {
+    tools: { register: (definition) => { registered.push(definition); return () => {}; } },
+    get: (service) => (service === 'webServer' ? { register: (route) => { routes.push(route); return () => {}; } } : undefined),
+    effect: (fn) => { fn(); },
+    logger: { info: () => {}, warn: () => {} },
+  };
+  const before = registered.length;
+  let threw = null;
+  try { plugin.apply(withServer); } catch (error) { threw = error; }
+  expect(!threw, 'apply() with a web server does not throw', threw ? String(threw.message) : '');
+  expect(registered.length - before === TOOLS.length, 'tools register again on a second apply', String(registered.length - before));
+  expect(routes.length === 1, 'exactly one route registered', String(routes.length));
+  expect(routes[0] && routes[0].kind === 'prefix' && routes[0].path === '/dsh-breeze-api', 'route is the api prefix', routes[0] && routes[0].path);
 }
 
 // config store round trip
